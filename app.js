@@ -81,18 +81,34 @@ app.get("/todos/:todoId/", async (request, response) => {
 // API 3
 
 app.get("/agenda/", async (request, response) => {
-  const { date } = request.query;
+  let { date } = request.query;
+  //   let [year, month, day] = date.split("-");
+  //   const dateObj = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+  //   console.log(dateObj);
 
   const getAgendaQuery = `
   SELECT 
     id, todo, priority, status, category, due_date AS dueDate
     FROM todo
   WHERE 
-    due_date = '${date}';`;
+    due_date = ${date};`;
   console.log(getAgendaQuery);
   let agendaObj = await db.all(getAgendaQuery);
   console.log(agendaObj);
   response.send(agendaObj);
+});
+
+// API 4
+
+app.post("/todos/", async (request, response) => {
+  const { id, todo, priority, status, category, dueDate } = request.body;
+
+  const addTodoQuery = `
+  INSERT INTO todo 
+  (id,todo, priority, status, category, due_date)
+  VALUES (${id}, '${todo}', '${priority}', '${status}', '${category}', ${dueDate});`;
+  await db.run(addTodoQuery);
+  response.send("Todo Successfully Added");
 });
 
 module.exports = app;
